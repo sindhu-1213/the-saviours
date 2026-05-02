@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "430748353801",
-    "project_id": "greenwave-544ab",
-    "storage_bucket": "greenwave-544ab.firebasestorage.app"
+    "project_number": "343568247437",
+    "project_id": "the-saviours",
+    "storage_bucket": "the-saviours.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:430748353801:android:9e3531af3e897ef6ad7fd8",
+        "mobilesdk_app_id": "1:343568247437:android:ea96141c26a91806ed90c4",
         "android_client_info": {
-          "package_name": "com.example.green_wave"
+          "package_name": "com.example.the_saviours"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDgJ8i3o-UV8c46PmdaohbcgwnKg6jcnV8"
+          "current_key": "AIzaSyCQIH9OY9hboSt5qCDIvHYeuepJBJh0nMk"
         }
       ],
       "services": {

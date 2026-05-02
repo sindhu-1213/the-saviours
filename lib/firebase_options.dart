@@ -4,16 +4,6 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
-/// Default [FirebaseOptions] for use with your Firebase apps.
-///
-/// Example:
-/// ```dart
-/// import 'firebase_options.dart';
-/// // ...
-/// await Firebase.initializeApp(
-///   options: DefaultFirebaseOptions.currentPlatform,
-/// );
-/// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
@@ -41,48 +31,48 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCCWGR0TYfQT6iKy3EuqVG-Pp2XnChzcyg',
-    appId: '1:430748353801:web:f82c649952c2b9caad7fd8',
-    messagingSenderId: '430748353801',
-    projectId: 'greenwave-544ab',
-    authDomain: 'greenwave-544ab.firebaseapp.com',
-    storageBucket: 'greenwave-544ab.firebasestorage.app',
-    measurementId: 'G-9Z1RXJRR56',
+    apiKey: 'AIzaSyAN13n2n3l4JOCcJ02xvNFCfkCTuulKSrE',
+    appId: '1:343568247437:web:6c2de11101d297bfed90c4',
+    messagingSenderId: '343568247437',
+    projectId: 'the-saviours',
+    authDomain: 'the-saviours.firebaseapp.com',
+    storageBucket: 'the-saviours.firebasestorage.app',
+    measurementId: 'G-GQLXY2WK6H',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDgJ8i3o-UV8c46PmdaohbcgwnKg6jcnV8',
-    appId: '1:430748353801:android:9e3531af3e897ef6ad7fd8',
-    messagingSenderId: '430748353801',
-    projectId: 'greenwave-544ab',
-    storageBucket: 'greenwave-544ab.firebasestorage.app',
+    apiKey: 'AIzaSyCQIH9OY9hboSt5qCDIvHYeuepJBJh0nMk',
+    appId: '1:343568247437:android:ea96141c26a91806ed90c4',
+    messagingSenderId: '343568247437',
+    projectId: 'the-saviours',
+    storageBucket: 'the-saviours.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyA6go6T_pcl8IIY3T0Y3-hmevnkokCDQkU',
-    appId: '1:430748353801:ios:d78d70d8a46a285dad7fd8',
-    messagingSenderId: '430748353801',
-    projectId: 'greenwave-544ab',
-    storageBucket: 'greenwave-544ab.firebasestorage.app',
-    iosBundleId: 'com.example.greenWave',
+    apiKey: 'AIzaSyAN13n2n3l4JOCcJ02xvNFCfkCTuulKSrE',
+    appId: '1:343568247437:web:6c2de11101d297bfed90c4',
+    messagingSenderId: '343568247437',
+    projectId: 'the-saviours',
+    storageBucket: 'the-saviours.firebasestorage.app',
+    iosBundleId: 'com.example.the_saviours',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyA6go6T_pcl8IIY3T0Y3-hmevnkokCDQkU',
-    appId: '1:430748353801:ios:d78d70d8a46a285dad7fd8',
-    messagingSenderId: '430748353801',
-    projectId: 'greenwave-544ab',
-    storageBucket: 'greenwave-544ab.firebasestorage.app',
-    iosBundleId: 'com.example.greenWave',
+    apiKey: 'AIzaSyAN13n2n3l4JOCcJ02xvNFCfkCTuulKSrE',
+    appId: '1:343568247437:web:6c2de11101d297bfed90c4',
+    messagingSenderId: '343568247437',
+    projectId: 'the-saviours',
+    storageBucket: 'the-saviours.firebasestorage.app',
+    iosBundleId: 'com.example.the_saviours',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCCWGR0TYfQT6iKy3EuqVG-Pp2XnChzcyg',
-    appId: '1:430748353801:web:594afa69e2f31ad1ad7fd8',
-    messagingSenderId: '430748353801',
-    projectId: 'greenwave-544ab',
-    authDomain: 'greenwave-544ab.firebaseapp.com',
-    storageBucket: 'greenwave-544ab.firebasestorage.app',
-    measurementId: 'G-RJ6Z7LH8RD',
+    apiKey: 'AIzaSyAN13n2n3l4JOCcJ02xvNFCfkCTuulKSrE',
+    appId: '1:343568247437:web:6c2de11101d297bfed90c4',
+    messagingSenderId: '343568247437',
+    projectId: 'the-saviours',
+    authDomain: 'the-saviours.firebaseapp.com',
+    storageBucket: 'the-saviours.firebasestorage.app',
+    measurementId: 'G-GQLXY2WK6H',
   );
 }
