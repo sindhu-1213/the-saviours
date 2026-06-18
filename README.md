@@ -2,7 +2,7 @@
 
 # 🚑 The Saviours
 
-### Real-Time Traffic Coordination for Intelligent Medical Emergency Response Systems | GPS & AI- Assisted Project
+### Real-Time Traffic Coordination for Intelligent Medical Emergency Response Systems | GPS & AI- Assisted System
 
 </div>
 
