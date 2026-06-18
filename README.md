@@ -1,5 +1,3 @@
-Here's your README:
-
 ---
 
 # 🚑 The Saviours
