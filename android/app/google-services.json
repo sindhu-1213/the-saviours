@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "343568247437",
+    "project_id": "the-saviours",
+    "storage_bucket": "the-saviours.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:343568247437:android:ea96141c26a91806ed90c4",
+        "android_client_info": {
+          "package_name": "com.example.the_saviours"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQIH9OY9hboSt5qCDIvHYeuepJBJh0nMk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
