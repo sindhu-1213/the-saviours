@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/constants/app_routes.dart';
 import 'core/services/api_config.dart';
+import 'core/services/supabase_service.dart';
 import 'core/state/admin_state.dart';
 import 'core/state/auth_state.dart';
 import 'core/state/incident_state.dart';
@@ -82,6 +83,7 @@ import 'features/admin/verification_review_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ApiConfig.initialize();
+  await SupabaseService().initialize();
 
   runApp(
     MultiProvider(

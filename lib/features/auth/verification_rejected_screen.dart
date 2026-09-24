@@ -6,6 +6,7 @@ import '../../core/constants/app_typography.dart';
 import '../../core/state/auth_state.dart';
 import '../../core/widgets/custom_button.dart';
 import '../../core/widgets/status_pill.dart';
+import '../../mock_data/mock_emergency_database.dart';
 
 class VerificationRejectedScreen extends StatelessWidget {
   const VerificationRejectedScreen({super.key});
@@ -119,7 +120,22 @@ class VerificationRejectedScreen extends StatelessWidget {
                 text: 'HELP & SUPPORT',
                 variant: ButtonVariant.outline,
                 onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.civilianHelp);
+                  String helpRoute = AppRoutes.civilianHelp;
+                  switch (auth.currentRole) {
+                    case UserRole.civilian:
+                      helpRoute = AppRoutes.civilianHelp;
+                      break;
+                    case UserRole.driver:
+                      helpRoute = AppRoutes.driverHelp;
+                      break;
+                    case UserRole.police:
+                      helpRoute = AppRoutes.policeHelp;
+                      break;
+                    case UserRole.admin:
+                      helpRoute = AppRoutes.adminHelp;
+                      break;
+                  }
+                  Navigator.pushNamed(context, helpRoute);
                 },
               ),
               const SizedBox(height: 20),

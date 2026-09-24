@@ -41,6 +41,14 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
       'badge': 'Police Badge ID Required',
       'color': AppColors.corridorGreen,
     },
+    {
+      'role': UserRole.admin,
+      'title': 'Admin & Central Control',
+      'subtitle': 'Manage city-wide emergency dispatch, verify emergency personnel KYC & monitor live analytics.',
+      'icon': Icons.admin_panel_settings_rounded,
+      'badge': 'Official Authorization',
+      'color': AppColors.primaryGreen,
+    },
   ];
 
   @override

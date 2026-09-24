@@ -239,47 +239,7 @@ class AppNotification {
 }
 
 class MockEmergencyDatabase {
-  static final List<UserModel> sampleUsers = [
-    UserModel(
-      id: 'USR-CIV-001',
-      name: 'Aarav Sharma',
-      email: 'aarav@civilian.saviours.org',
-      phone: '+91 98765 43210',
-      role: UserRole.civilian,
-      verificationStatus: VerificationStatus.verified,
-      aadhaarMasked: 'XXXX-XXXX-8921',
-    ),
-    UserModel(
-      id: 'USR-DRV-108',
-      name: 'Rajesh Kumar',
-      email: 'rajesh@ambulance.saviours.org',
-      phone: '+91 98450 11208',
-      role: UserRole.driver,
-      verificationStatus: VerificationStatus.verified,
-      vehicleNumber: 'KA-01-EA-108',
-      badgeNumber: 'AMB-BLR-042',
-      jurisdictionZone: 'Central Command & Indiranagar',
-    ),
-    UserModel(
-      id: 'USR-POL-502',
-      name: 'Inspector Vikram Rao',
-      email: 'vikram.rao@traffic.saviours.org',
-      phone: '+91 97312 99502',
-      role: UserRole.police,
-      verificationStatus: VerificationStatus.verified,
-      badgeNumber: 'TP-BLR-502',
-      jurisdictionZone: 'MG Road - Trinity - Domlur Junction',
-    ),
-    UserModel(
-      id: 'USR-ADM-001',
-      name: 'Dr. Ananya Sen (Control Room)',
-      email: 'admin@control.saviours.org',
-      phone: '+91 80 2297 1000',
-      role: UserRole.admin,
-      verificationStatus: VerificationStatus.verified,
-      badgeNumber: 'ADM-EXEC-01',
-    ),
-  ];
+  static final List<UserModel> sampleUsers = [];
 
   static final List<HospitalModel> sampleHospitals = [
     HospitalModel(
@@ -336,120 +296,9 @@ class MockEmergencyDatabase {
     ),
   ];
 
-  static final List<KycDocument> samplePendingKycs = [
-    KycDocument(
-      id: 'KYC-001',
-      userId: 'USR-DRV-109',
-      userName: 'Suresh Patil',
-      role: UserRole.driver,
-      docType: 'Commercial DL & Ambulance Service Badge',
-      docNumber: 'KA-04-2018-0098231',
-      uploadedAt: DateTime.now().subtract(const Duration(minutes: 42)),
-      aiAuthenticityScore: 96,
-      tamperFlag: false,
-      ocrExtractedName: 'Suresh Patil',
-      ocrExtractedNumber: 'KA-04-2018-0098231',
-    ),
-    KycDocument(
-      id: 'KYC-002',
-      userId: 'USR-POL-504',
-      userName: 'SI Ramesh Gowda',
-      role: UserRole.police,
-      docType: 'State Police ID & Department Verification',
-      docNumber: 'BTP-SI-2021-998',
-      uploadedAt: DateTime.now().subtract(const Duration(hours: 2)),
-      aiAuthenticityScore: 92,
-      tamperFlag: false,
-      ocrExtractedName: 'Ramesh Gowda',
-      ocrExtractedNumber: 'BTP-SI-2021-998',
-    ),
-    KycDocument(
-      id: 'KYC-003',
-      userId: 'USR-CIV-089',
-      userName: 'Pooja Verma',
-      role: UserRole.civilian,
-      docType: 'Aadhaar Card (Front/Back)',
-      docNumber: '9182 3421 9901',
-      uploadedAt: DateTime.now().subtract(const Duration(hours: 5)),
-      aiAuthenticityScore: 89,
-      tamperFlag: false,
-      ocrExtractedName: 'Pooja Verma',
-      ocrExtractedNumber: '9182 3421 9901',
-    ),
-  ];
+  static final List<KycDocument> samplePendingKycs = [];
 
-  static final List<TripRecord> samplePastTrips = [
-    TripRecord(
-      id: 'TRIP-801',
-      incidentId: 'INC-2026-0811',
-      driverId: 'USR-DRV-108',
-      location: '100ft Rd, Indiranagar',
-      hospitalName: 'Manipal Hospital',
-      startTime: DateTime.now().subtract(const Duration(days: 1, hours: 2)),
-      endTime: DateTime.now().subtract(const Duration(days: 1, hours: 1, minutes: 42)),
-      distanceKm: 4.2,
-      totalMinutes: 18,
-      junctionsCleared: 4,
-      status: 'Completed (Saved)',
-    ),
-    TripRecord(
-      id: 'TRIP-799',
-      incidentId: 'INC-2026-0799',
-      driverId: 'USR-DRV-108',
-      location: 'Old Madras Road',
-      hospitalName: 'Apollo Speciality',
-      startTime: DateTime.now().subtract(const Duration(days: 2, hours: 4)),
-      endTime: DateTime.now().subtract(const Duration(days: 2, hours: 3, minutes: 38)),
-      distanceKm: 5.6,
-      totalMinutes: 22,
-      junctionsCleared: 6,
-      status: 'Completed (Saved)',
-    ),
-    TripRecord(
-      id: 'TRIP-782',
-      incidentId: 'INC-2026-0782',
-      driverId: 'USR-DRV-108',
-      location: 'Koramangala 80ft Rd',
-      hospitalName: 'St. John’s Hospital',
-      startTime: DateTime.now().subtract(const Duration(days: 4, hours: 6)),
-      endTime: DateTime.now().subtract(const Duration(days: 4, hours: 5, minutes: 45)),
-      distanceKm: 3.8,
-      totalMinutes: 15,
-      junctionsCleared: 3,
-      status: 'Completed (Saved)',
-    ),
-  ];
+  static final List<TripRecord> samplePastTrips = [];
 
-  static final List<ClearanceRecord> sampleClearances = [
-    ClearanceRecord(
-      id: 'CLR-901',
-      incidentId: 'INC-2026-0811',
-      officerId: 'USR-POL-502',
-      officerName: 'Inspector Vikram Rao',
-      junctionName: 'Trinity Circle - MG Rd Junction',
-      clearedAt: DateTime.now().subtract(const Duration(days: 1, hours: 1, minutes: 55)),
-      congestionLevel: 'Heavy (Peak 6 PM)',
-      secondsToClear: 45,
-    ),
-    ClearanceRecord(
-      id: 'CLR-899',
-      incidentId: 'INC-2026-0811',
-      officerId: 'USR-POL-502',
-      officerName: 'Inspector Vikram Rao',
-      junctionName: 'Domlur Flyover Entry',
-      clearedAt: DateTime.now().subtract(const Duration(days: 1, hours: 1, minutes: 50)),
-      congestionLevel: 'Moderate',
-      secondsToClear: 32,
-    ),
-    ClearanceRecord(
-      id: 'CLR-876',
-      incidentId: 'INC-2026-0799',
-      officerId: 'USR-POL-502',
-      officerName: 'Inspector Vikram Rao',
-      junctionName: 'Indiranagar 100ft Signal',
-      clearedAt: DateTime.now().subtract(const Duration(days: 2, hours: 3, minutes: 50)),
-      congestionLevel: 'Severe',
-      secondsToClear: 58,
-    ),
-  ];
+  static final List<ClearanceRecord> sampleClearances = [];
 }

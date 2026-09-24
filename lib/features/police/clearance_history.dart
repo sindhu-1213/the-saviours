@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_typography.dart';
+import '../../core/state/incident_state.dart';
 import '../../core/widgets/status_pill.dart';
 import '../../mock_data/mock_emergency_database.dart';
 
@@ -10,7 +12,10 @@ class ClearanceHistory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final clearances = MockEmergencyDatabase.sampleClearances;
+    final incidentState = context.watch<IncidentState>();
+    final clearances = incidentState.clearances.isNotEmpty
+        ? incidentState.clearances
+        : MockEmergencyDatabase.sampleClearances;
 
     return Scaffold(
       backgroundColor: AppColors.background,

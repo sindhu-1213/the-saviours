@@ -1,9 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../mock_data/mock_emergency_database.dart';
+import '../services/supabase_service.dart';
 
 class IncidentState extends ChangeNotifier {
   final List<IncidentModel> _incidents = [];
+  final List<ClearanceRecord> _clearances = [];
+  final List<TripRecord> _trips = [];
+  final List<HospitalModel> _hospitals = [];
   IncidentModel? _activeIncident;
   bool _isDriverOnDuty = true;
   bool _isPoliceOnDuty = true;
@@ -21,10 +25,13 @@ class IncidentState extends ChangeNotifier {
   final List<AppNotification> _notifications = [];
 
   IncidentState() {
-    _initSampleData();
+    _initData();
   }
 
   List<IncidentModel> get incidents => _incidents;
+  List<ClearanceRecord> get clearances => _clearances;
+  List<TripRecord> get trips => _trips;
+  List<HospitalModel> get hospitals => _hospitals;
   IncidentModel? get activeIncident => _activeIncident;
   bool get isDriverOnDuty => _isDriverOnDuty;
   bool get isPoliceOnDuty => _isPoliceOnDuty;
@@ -36,73 +43,36 @@ class IncidentState extends ChangeNotifier {
   bool get isGreenCorridorActive => _isGreenCorridorActive;
   List<AppNotification> get notifications => _notifications;
 
-  void _initSampleData() {
-    // Seed initial active incident for rich experience out of the box
-    final initialIncident = IncidentModel(
-      id: 'INC-2026-0819',
-      reporterId: 'USR-CIV-001',
-      reporterName: 'Aarav Sharma',
-      reporterPhone: '+91 98765 43210',
-      locationName: 'Indiranagar 100ft Road, Near KFC Junction',
-      latitude: 12.9784,
-      longitude: 77.6408,
-      aiConfidenceScore: 92,
-      status: IncidentStatus.driverDispatched,
-      criticality: IncidentCriticality.critical,
-      createdAt: DateTime.now().subtract(const Duration(minutes: 4)),
-      assignedDriverId: 'USR-DRV-108',
-      assignedDriverName: 'Rajesh Kumar',
-      assignedVehicle: 'KA-01-EA-108',
-      clearedJunctions: ['Trinity Circle Signal'],
-      auditLogs: [
-        AuditEntry(
-          stage: 'Phase 1: Reporting',
-          action: 'Incident captured via Camera & Geotagged',
-          timestamp: DateTime.now().subtract(const Duration(minutes: 4)),
-          actorName: 'Aarav Sharma',
-          actorRole: 'Civilian',
-          details: 'Lat: 12.9784, Lng: 77.6408, Device: SM-G998B, Tamper Check: Pass',
-        ),
-        AuditEntry(
-          stage: 'Phase 1: AI Verification',
-          action: 'Google Gemini Vision AI Validated Scene',
-          timestamp: DateTime.now().subtract(const Duration(minutes: 3, seconds: 40)),
-          actorName: 'Gemini AI Engine',
-          actorRole: 'System AI',
-          details: 'Confidence: 92%, Road Accident Confirmed, Multi-vehicle collision flagged',
-        ),
-        AuditEntry(
-          stage: 'Phase 2: Dispatch',
-          action: 'Ambulance 108 Dispatched & Police Alerted',
-          timestamp: DateTime.now().subtract(const Duration(minutes: 3)),
-          actorName: 'Saviours Dispatch Engine',
-          actorRole: 'System',
-          details: 'Driver Rajesh Kumar (KA-01-EA-108) assigned. 3 Geo-fenced traffic posts notified.',
-        ),
-      ],
-    );
+  Future<void> _initData() async {
+    final supabase = SupabaseService();
+    if (supabase.isInitialized) {
+      final remoteIncidents = await supabase.fetchIncidents();
+      final remoteClearances = await supabase.fetchClearances();
+      final remoteTrips = await supabase.fetchTrips();
+      final remoteHospitals = await supabase.fetchHospitals();
 
-    _incidents.add(initialIncident);
-    _activeIncident = initialIncident;
-
-    _notifications.addAll([
-      AppNotification(
-        id: 'NOTIF-01',
-        title: 'Emergency Alert: Critical Collision',
-        message: 'Ambulance KA-01-EA-108 dispatched to Indiranagar 100ft Rd.',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 3)),
-        icon: Icons.emergency,
-        iconColor: Colors.red,
-      ),
-      AppNotification(
-        id: 'NOTIF-02',
-        title: 'Green Corridor Request',
-        message: 'MG Road - Trinity Junction traffic clearance requested.',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 2)),
-        icon: Icons.traffic,
-        iconColor: Colors.orange,
-      ),
-    ]);
+      if (remoteIncidents.isNotEmpty) {
+        _incidents.clear();
+        _incidents.addAll(remoteIncidents);
+        _activeIncident = _incidents.firstWhere(
+          (inc) => inc.status != IncidentStatus.completed && inc.status != IncidentStatus.rejected,
+          orElse: () => _incidents.first,
+        );
+      }
+      if (remoteClearances.isNotEmpty) {
+        _clearances.clear();
+        _clearances.addAll(remoteClearances);
+      }
+      if (remoteTrips.isNotEmpty) {
+        _trips.clear();
+        _trips.addAll(remoteTrips);
+      }
+      if (remoteHospitals.isNotEmpty) {
+        _hospitals.clear();
+        _hospitals.addAll(remoteHospitals);
+      }
+      notifyListeners();
+    }
   }
 
   void toggleDriverDuty() {
@@ -184,6 +154,9 @@ class IncidentState extends ChangeNotifier {
       ),
     );
 
+    // Save to Supabase
+    await SupabaseService().insertIncident(newIncident);
+
     notifyListeners();
     return newIncident;
   }
@@ -208,6 +181,7 @@ class IncidentState extends ChangeNotifier {
       );
 
       _startAmbulanceSimulation();
+      SupabaseService().updateIncident(_activeIncident!);
       notifyListeners();
     }
   }
@@ -225,6 +199,7 @@ class IncidentState extends ChangeNotifier {
           details: 'Traffic priority escalated to highest tier.',
         ),
       );
+      SupabaseService().updateIncident(_activeIncident!);
       notifyListeners();
     }
   }
@@ -248,19 +223,19 @@ class IncidentState extends ChangeNotifier {
         ),
       );
 
-      MockEmergencyDatabase.sampleClearances.insert(
-        0,
-        ClearanceRecord(
-          id: 'CLR-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
-          incidentId: _activeIncident!.id,
-          officerId: officerId,
-          officerName: officerName,
-          junctionName: junctionName,
-          clearedAt: DateTime.now(),
-          congestionLevel: 'High Congestion Cleared',
-          secondsToClear: 38,
-        ),
+      final clearance = ClearanceRecord(
+        id: 'CLR-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
+        incidentId: _activeIncident!.id,
+        officerId: officerId,
+        officerName: officerName,
+        junctionName: junctionName,
+        clearedAt: DateTime.now(),
+        congestionLevel: 'High Congestion Cleared',
+        secondsToClear: 38,
       );
+
+      _clearances.insert(0, clearance);
+      MockEmergencyDatabase.sampleClearances.insert(0, clearance);
 
       _notifications.insert(
         0,
@@ -273,6 +248,9 @@ class IncidentState extends ChangeNotifier {
           iconColor: Colors.green,
         ),
       );
+
+      SupabaseService().insertClearance(clearance);
+      SupabaseService().updateIncident(_activeIncident!);
 
       notifyListeners();
     }
@@ -292,6 +270,7 @@ class IncidentState extends ChangeNotifier {
           details: 'Vitals stabilized. Hospital suggestion engine activated.',
         ),
       );
+      SupabaseService().updateIncident(_activeIncident!);
       notifyListeners();
     }
   }
@@ -325,6 +304,7 @@ class IncidentState extends ChangeNotifier {
         ),
       );
 
+      SupabaseService().updateIncident(_activeIncident!);
       notifyListeners();
     }
   }
@@ -346,23 +326,25 @@ class IncidentState extends ChangeNotifier {
         ),
       );
 
-      // Save to past trips
-      MockEmergencyDatabase.samplePastTrips.insert(
-        0,
-        TripRecord(
-          id: 'TRIP-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
-          incidentId: _activeIncident!.id,
-          driverId: _activeIncident!.assignedDriverId ?? 'USR-DRV-108',
-          location: _activeIncident!.locationName,
-          hospitalName: _activeIncident!.assignedHospitalName ?? 'Emergency Care Center',
-          startTime: _activeIncident!.createdAt,
-          endTime: completedTime,
-          distanceKm: 4.6,
-          totalMinutes: completedTime.difference(_activeIncident!.createdAt).inMinutes.clamp(8, 45),
-          junctionsCleared: _activeIncident!.clearedJunctions.length.clamp(2, 6),
-          status: 'Completed (Saved)',
-        ),
+      final trip = TripRecord(
+        id: 'TRIP-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
+        incidentId: _activeIncident!.id,
+        driverId: _activeIncident!.assignedDriverId ?? 'USR-DRV-108',
+        location: _activeIncident!.locationName,
+        hospitalName: _activeIncident!.assignedHospitalName ?? 'Emergency Care Center',
+        startTime: _activeIncident!.createdAt,
+        endTime: completedTime,
+        distanceKm: 4.6,
+        totalMinutes: completedTime.difference(_activeIncident!.createdAt).inMinutes.clamp(8, 45),
+        junctionsCleared: _activeIncident!.clearedJunctions.length.clamp(2, 6),
+        status: 'Completed (Saved)',
       );
+
+      _trips.insert(0, trip);
+      MockEmergencyDatabase.samplePastTrips.insert(0, trip);
+
+      SupabaseService().insertTrip(trip);
+      SupabaseService().updateIncident(_activeIncident!);
 
       _simulationTimer?.cancel();
       notifyListeners();

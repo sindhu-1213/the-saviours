@@ -16,18 +16,26 @@ class HospitalSuggestionScreen extends StatefulWidget {
 }
 
 class _HospitalSuggestionScreenState extends State<HospitalSuggestionScreen> {
-  HospitalModel _selectedHospital = MockEmergencyDatabase.sampleHospitals.first;
+  HospitalModel? _selectedHospital;
 
   void _proceedToCycle2() {
     final incidentState = context.read<IncidentState>();
-    incidentState.selectHospital(_selectedHospital);
-
+    final hospitals = incidentState.hospitals.isNotEmpty 
+        ? incidentState.hospitals 
+        : MockEmergencyDatabase.sampleHospitals;
+    final targetHospital = _selectedHospital ?? hospitals.first;
+    
+    incidentState.selectHospital(targetHospital);
     Navigator.pushReplacementNamed(context, AppRoutes.driverNavCycle2);
   }
 
   @override
   Widget build(BuildContext context) {
-    final hospitals = MockEmergencyDatabase.sampleHospitals;
+    final incidentState = context.watch<IncidentState>();
+    final hospitals = incidentState.hospitals.isNotEmpty 
+        ? incidentState.hospitals 
+        : MockEmergencyDatabase.sampleHospitals;
+    final selectedHospital = _selectedHospital ?? hospitals.first;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -54,7 +62,7 @@ class _HospitalSuggestionScreenState extends State<HospitalSuggestionScreen> {
                   separatorBuilder: (_, __) => const SizedBox(height: 14),
                   itemBuilder: (context, index) {
                     final h = hospitals[index];
-                    final isSelected = _selectedHospital.id == h.id;
+                    final isSelected = selectedHospital.id == h.id;
                     final isTopRecommendation = index == 0;
 
                     return InkWell(
@@ -176,7 +184,7 @@ class _HospitalSuggestionScreenState extends State<HospitalSuggestionScreen> {
               ),
 
               CustomButton(
-                text: 'START CYCLE 2 TO ${_selectedHospital.name.toUpperCase()}',
+                text: 'START CYCLE 2 TO ${selectedHospital.name.toUpperCase()}',
                 icon: Icons.local_shipping_rounded,
                 variant: ButtonVariant.primary,
                 onPressed: _proceedToCycle2,

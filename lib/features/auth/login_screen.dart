@@ -16,18 +16,38 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _identifierController = TextEditingController(text: 'aarav@civilian.saviours.org');
-  final _passwordController = TextEditingController(text: 'Password@123');
+  final _identifierController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   Future<void> _handleLogin() async {
-    final auth = context.read<AuthState>();
-    final success = await auth.login(
-      _identifierController.text.trim(),
-      _passwordController.text,
-    );
+    final identifier = _identifierController.text.trim();
+    final password = _passwordController.text;
 
-    if (!mounted || !success) return;
+    if (identifier.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your email/phone and password'),
+          backgroundColor: AppColors.emergencyRed,
+        ),
+      );
+      return;
+    }
+
+    final auth = context.read<AuthState>();
+    final success = await auth.login(identifier, password);
+
+    if (!mounted) return;
+
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(auth.errorMessage ?? 'Login failed. Please check credentials or Register.'),
+          backgroundColor: AppColors.emergencyRed,
+        ),
+      );
+      return;
+    }
 
     if (auth.isPending) {
       Navigator.pushReplacementNamed(context, AppRoutes.verificationPending);
@@ -55,25 +75,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _fillDemoCredentials(UserRole role) {
-    switch (role) {
-      case UserRole.civilian:
-        _identifierController.text = 'aarav@civilian.saviours.org';
-        break;
-      case UserRole.driver:
-        _identifierController.text = 'rajesh@ambulance.saviours.org';
-        break;
-      case UserRole.police:
-        _identifierController.text = 'vikram.rao@traffic.saviours.org';
-        break;
-      case UserRole.admin:
-        _identifierController.text = 'admin@control.saviours.org';
-        break;
-    }
-    _passwordController.text = 'Saviours@2026';
-    setState(() {});
-  }
-
   @override
   void dispose() {
     _identifierController.dispose();
@@ -94,27 +95,57 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header Logo Icon
-                Container(
-                  width: 54,
-                  height: 54,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryGreen,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.emergency_share_rounded,
-                      size: 32,
-                      color: AppColors.textDark,
+                // Top Header Row with Logo and Language Selector
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryGreen,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.emergency_share_rounded,
+                          size: 32,
+                          color: AppColors.textDark,
+                        ),
+                      ),
                     ),
-                  ),
+                    Row(
+                      children: [
+                        TextButton.icon(
+                          onPressed: () => Navigator.pushNamed(context, AppRoutes.language),
+                          icon: const Icon(Icons.language, size: 16, color: AppColors.primaryGreen),
+                          label: Text(
+                            auth.selectedLanguage,
+                            style: AppTypography.caption.copyWith(
+                              color: AppColors.primaryGreen,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          style: TextButton.styleFrom(
+                            backgroundColor: AppColors.surfaceElevated,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          tooltip: 'Explore App Tour',
+                          icon: const Icon(Icons.help_outline_rounded, color: AppColors.textSecondary),
+                          onPressed: () => Navigator.pushNamed(context, AppRoutes.onboarding),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 24),
-                Text('Welcome back to\nSaviours', style: AppTypography.displayMedium),
+                const SizedBox(height: 28),
+                Text('Sign In to\nSaviours', style: AppTypography.displayMedium),
                 const SizedBox(height: 8),
                 Text(
-                  'Log in with your registered Email or Mobile number.',
+                  'Enter your registered email and password to access the system.',
                   style: AppTypography.bodyMedium,
                 ),
                 const SizedBox(height: 32),
@@ -122,14 +153,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Inputs
                 CustomTextField(
                   label: 'EMAIL OR MOBILE NUMBER',
-                  hintText: 'e.g. name@example.com or +91 9876543210',
+                  hintText: 'e.g. user@example.com',
                   controller: _identifierController,
                   prefixIcon: Icons.account_circle_outlined,
+                  keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 18),
                 CustomTextField(
                   label: 'PASSWORD',
-                  hintText: 'Enter your password',
+                  hintText: 'Enter your account password',
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                   prefixIcon: Icons.lock_outline,
@@ -159,7 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
 
                 // Submit Button
                 CustomButton(
@@ -168,88 +200,45 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: _handleLogin,
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 36),
 
-                // Quick Demo Login Persona Chips
+                // Sign Up Section
                 Container(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
                     color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: AppColors.divider),
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.flash_on, size: 16, color: AppColors.primaryGreen),
-                          const SizedBox(width: 6),
-                          Text(
-                            'ONE-TAP DEMO PREVIEW LOGIN:',
-                            style: AppTypography.caption.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.primaryGreen,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _buildRoleChip('Civilian', UserRole.civilian, Icons.person),
-                          _buildRoleChip('Ambulance 108', UserRole.driver, Icons.local_hospital),
-                          _buildRoleChip('Traffic Police', UserRole.police, Icons.traffic),
-                          _buildRoleChip('Admin Control', UserRole.admin, Icons.admin_panel_settings),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 28),
-
-                // Sign Up link
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Don't have an account? ",
-                        style: AppTypography.bodyMedium,
+                        'New to Saviours Platform?',
+                        style: AppTypography.titleMedium,
                       ),
-                      GestureDetector(
-                        onTap: () {
+                      const SizedBox(height: 6),
+                      Text(
+                        'Register as Civilian, Ambulance Driver, Traffic Police, or Admin Control Room.',
+                        textAlign: TextAlign.center,
+                        style: AppTypography.caption,
+                      ),
+                      const SizedBox(height: 14),
+                      CustomButton(
+                        text: 'REGISTER NEW ACCOUNT',
+                        variant: ButtonVariant.outline,
+                        onPressed: () {
                           Navigator.pushNamed(context, AppRoutes.roleSelection);
                         },
-                        child: Text(
-                          'Register Now',
-                          style: AppTypography.bodyLarge.copyWith(
-                            color: AppColors.primaryGreen,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
                       ),
                     ],
                   ),
                 ),
+                const SizedBox(height: 24),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildRoleChip(String label, UserRole role, IconData icon) {
-    return ActionChip(
-      avatar: Icon(icon, size: 16, color: Colors.white),
-      label: Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
-      backgroundColor: AppColors.surfaceElevated,
-      side: const BorderSide(color: AppColors.divider),
-      onPressed: () => _fillDemoCredentials(role),
     );
   }
 }

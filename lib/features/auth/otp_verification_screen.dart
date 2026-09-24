@@ -56,10 +56,55 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       return;
     }
 
+    final auth = context.read<AuthState>();
+    if (auth.pendingSignupEmail == null || auth.pendingSignupEmail!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Missing registration details. Please go back and fill the form.'),
+          backgroundColor: AppColors.emergencyRed,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isVerifying = true);
-    await Future.delayed(const Duration(milliseconds: 600));
+    final success = await auth.registerAccount(
+      name: auth.pendingSignupName ?? 'New User',
+      email: auth.pendingSignupEmail!,
+      phone: auth.pendingSignupPhone ?? '+91 98765 43210',
+      password: auth.pendingSignupPassword ?? 'Password@123',
+      role: auth.pendingSignupRole,
+      vehicleNumber: auth.pendingVehicleNumber,
+      badgeNumber: auth.pendingBadgeNumber,
+      jurisdictionZone: auth.pendingJurisdictionZone,
+    );
     if (!mounted) return;
     setState(() => _isVerifying = false);
+
+    if (!success) {
+      final errorMsg = auth.errorMessage ?? 'Registration failed. Please try again.';
+      final isAlreadyRegistered = errorMsg.toLowerCase().contains('already') || 
+                                  errorMsg.toLowerCase().contains('registered') || 
+                                  errorMsg.toLowerCase().contains('exists');
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMsg),
+          backgroundColor: AppColors.emergencyRed,
+          duration: const Duration(seconds: 5),
+          action: isAlreadyRegistered
+              ? SnackBarAction(
+                  label: 'SIGN IN',
+                  textColor: Colors.white,
+                  onPressed: () {
+                    Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (r) => false);
+                  },
+                )
+              : null,
+        ),
+      );
+      return;
+    }
 
     Navigator.pushReplacementNamed(context, AppRoutes.kycUpload);
   }

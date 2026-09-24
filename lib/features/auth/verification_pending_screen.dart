@@ -105,9 +105,24 @@ class VerificationPendingScreen extends StatelessWidget {
                       backgroundColor: AppColors.primaryGreen,
                     ),
                   );
+                  String destination = AppRoutes.civilianHome;
+                  switch (auth.currentRole) {
+                    case UserRole.civilian:
+                      destination = AppRoutes.civilianHome;
+                      break;
+                    case UserRole.driver:
+                      destination = AppRoutes.driverHome;
+                      break;
+                    case UserRole.police:
+                      destination = AppRoutes.policeHome;
+                      break;
+                    case UserRole.admin:
+                      destination = AppRoutes.adminHome;
+                      break;
+                  }
                   Navigator.pushNamedAndRemoveUntil(
                     context,
-                    AppRoutes.civilianHome,
+                    destination,
                     (r) => false,
                   );
                 },
@@ -117,9 +132,28 @@ class VerificationPendingScreen extends StatelessWidget {
                 text: 'CHECK LATEST STATUS',
                 variant: ButtonVariant.outline,
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Status refreshed: Documents currently under review.')),
-                  );
+                  if (auth.isVerified) {
+                    String destination = AppRoutes.civilianHome;
+                    switch (auth.currentRole) {
+                      case UserRole.civilian:
+                        destination = AppRoutes.civilianHome;
+                        break;
+                      case UserRole.driver:
+                        destination = AppRoutes.driverHome;
+                        break;
+                      case UserRole.police:
+                        destination = AppRoutes.policeHome;
+                        break;
+                      case UserRole.admin:
+                        destination = AppRoutes.adminHome;
+                        break;
+                    }
+                    Navigator.pushNamedAndRemoveUntil(context, destination, (r) => false);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Status refreshed: Documents currently under review.')),
+                    );
+                  }
                 },
               ),
               const SizedBox(height: 20),

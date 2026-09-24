@@ -15,12 +15,12 @@ class ApiConfig {
   static String get geminiApiKey => dotenv.get('GEMINI_API_KEY', fallback: '');
   
   static bool get isMockMode {
-    final mode = dotenv.get('APP_MODE', fallback: 'mock').toLowerCase();
+    final mode = dotenv.get('APP_MODE', fallback: 'online').toLowerCase();
     if (mode == 'mock') return true;
-    return supabaseUrl.contains('saviours.supabase.co') || googleMapsApiKey.isEmpty;
+    return !hasValidSupabaseKey;
   }
 
   static bool get hasValidMapsKey => googleMapsApiKey.isNotEmpty && !googleMapsApiKey.contains('mock');
   static bool get hasValidGeminiKey => geminiApiKey.isNotEmpty && !geminiApiKey.contains('mock');
-  static bool get hasValidSupabaseKey => supabaseAnonKey.isNotEmpty && !supabaseAnonKey.contains('mock');
+  static bool get hasValidSupabaseKey => supabaseAnonKey.isNotEmpty && !supabaseAnonKey.contains('mock') && !supabaseUrl.contains('saviours.supabase.co');
 }

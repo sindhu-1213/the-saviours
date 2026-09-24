@@ -7,7 +7,6 @@ import '../../core/state/auth_state.dart';
 import '../../core/state/incident_state.dart';
 import '../../core/widgets/app_bottom_bar.dart';
 import '../../core/widgets/custom_button.dart';
-import '../../core/widgets/role_switcher_sheet.dart';
 import '../../core/widgets/spotify_hero_card.dart';
 import '../../core/widgets/status_pill.dart';
 import '../../mock_data/mock_emergency_database.dart';
@@ -28,6 +27,9 @@ class _PoliceDashboardState extends State<PoliceDashboard> {
     final incidentState = context.watch<IncidentState>();
     final active = incidentState.activeIncident;
     final isOnDuty = incidentState.isPoliceOnDuty;
+    final recentClearances = incidentState.clearances.isNotEmpty
+        ? incidentState.clearances
+        : MockEmergencyDatabase.sampleClearances;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -49,11 +51,6 @@ class _PoliceDashboardState extends State<PoliceDashboard> {
           IconButton(
             icon: const Icon(Icons.notifications_none_rounded),
             onPressed: () => Navigator.pushNamed(context, AppRoutes.policeNotifications),
-          ),
-          IconButton(
-            icon: const Icon(Icons.swap_horiz_rounded, color: AppColors.primaryGreen),
-            tooltip: 'Switch Role',
-            onPressed: () => RoleSwitcherSheet.show(context),
           ),
           const SizedBox(width: 6),
         ],
@@ -243,44 +240,61 @@ class _PoliceDashboardState extends State<PoliceDashboard> {
             ),
             const SizedBox(height: 12),
 
-            ...MockEmergencyDatabase.sampleClearances.take(2).map((clr) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.divider),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceElevated,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(Icons.traffic_rounded, color: AppColors.corridorGreen, size: 20),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(clr.junctionName, style: AppTypography.titleMedium.copyWith(fontSize: 14)),
-                            const SizedBox(height: 2),
-                            Text('Cleared in ${clr.secondsToClear}s • ${clr.congestionLevel}', style: AppTypography.caption),
-                          ],
-                        ),
-                      ),
-                      StatusPill.cleared(label: 'CLEARED'),
-                    ],
+            if (recentClearances.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.divider),
+                ),
+                child: Center(
+                  child: Text(
+                    'No traffic clearances recorded yet. Clearances will appear when you clear active corridors.',
+                    style: AppTypography.caption,
+                    textAlign: TextAlign.center,
                   ),
                 ),
-              );
-            }),
+              )
+            else
+              ...recentClearances.take(2).map((clr) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.divider),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceElevated,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(Icons.traffic_rounded, color: AppColors.corridorGreen, size: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(clr.junctionName, style: AppTypography.titleMedium.copyWith(fontSize: 14)),
+                              const SizedBox(height: 2),
+                              Text('Cleared in ${clr.secondsToClear}s • ${clr.congestionLevel}', style: AppTypography.caption),
+                            ],
+                          ),
+                        ),
+                        StatusPill.cleared(label: 'CLEARED'),
+                      ],
+                    ),
+                  ),
+                );
+              }),
 
             const SizedBox(height: 30),
           ],

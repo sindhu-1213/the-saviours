@@ -7,7 +7,6 @@ import '../../core/state/admin_state.dart';
 import '../../core/state/auth_state.dart';
 import '../../core/state/incident_state.dart';
 import '../../core/widgets/app_bottom_bar.dart';
-import '../../core/widgets/role_switcher_sheet.dart';
 import '../../core/widgets/spotify_hero_card.dart';
 import '../../core/widgets/status_pill.dart';
 import '../../mock_data/mock_emergency_database.dart';
@@ -62,11 +61,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
           IconButton(
             icon: const Icon(Icons.notifications_none_rounded),
             onPressed: () => Navigator.pushNamed(context, AppRoutes.adminNotifications),
-          ),
-          IconButton(
-            icon: const Icon(Icons.swap_horiz_rounded, color: AppColors.primaryGreen),
-            tooltip: 'Switch Persona',
-            onPressed: () => RoleSwitcherSheet.show(context),
           ),
           const SizedBox(width: 6),
         ],

@@ -7,6 +7,8 @@ import '../../core/state/auth_state.dart';
 import '../../core/widgets/custom_button.dart';
 import '../../core/widgets/custom_text_field.dart';
 
+import '../../mock_data/mock_emergency_database.dart';
+
 class SignupBasicScreen extends StatefulWidget {
   const SignupBasicScreen({super.key});
 
@@ -21,6 +23,9 @@ class _SignupBasicScreenState extends State<SignupBasicScreen> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _vehicleNumberController = TextEditingController();
+  final _badgeNumberController = TextEditingController();
+  final _jurisdictionController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
@@ -30,15 +35,29 @@ class _SignupBasicScreenState extends State<SignupBasicScreen> {
     _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _vehicleNumberController.dispose();
+    _badgeNumberController.dispose();
+    _jurisdictionController.dispose();
     super.dispose();
   }
 
   void _handleSubmit() {
     if (_formKey.currentState?.validate() ?? false) {
+      final auth = context.read<AuthState>();
+      final role = auth.pendingSignupRole;
+
       context.read<AuthState>().setPendingSignupDetails(
             name: _nameController.text.trim(),
             email: _emailController.text.trim(),
             phone: _phoneController.text.trim(),
+            password: _passwordController.text,
+            vehicleNumber: role == UserRole.driver ? _vehicleNumberController.text.trim() : null,
+            badgeNumber: (role == UserRole.police || role == UserRole.driver || role == UserRole.admin)
+                ? _badgeNumberController.text.trim()
+                : null,
+            jurisdictionZone: (role == UserRole.police || role == UserRole.admin)
+                ? _jurisdictionController.text.trim()
+                : null,
           );
       Navigator.pushNamed(context, AppRoutes.otpVerification);
     }
@@ -98,6 +117,51 @@ class _SignupBasicScreenState extends State<SignupBasicScreen> {
                   validator: (v) => (v == null || !v.contains('@')) ? 'Enter a valid email address' : null,
                 ),
                 const SizedBox(height: 18),
+
+                if (auth.pendingSignupRole == UserRole.driver) ...[
+                  CustomTextField(
+                    label: 'AMBULANCE VEHICLE NUMBER',
+                    hintText: 'e.g. KA-01-EA-108',
+                    controller: _vehicleNumberController,
+                    prefixIcon: Icons.local_hospital_outlined,
+                    validator: (v) => (v == null || v.isEmpty) ? 'Please enter ambulance registration number' : null,
+                  ),
+                  const SizedBox(height: 18),
+                  CustomTextField(
+                    label: 'AMBULANCE SERVICE / BADGE ID',
+                    hintText: 'e.g. AMB-108-BLR',
+                    controller: _badgeNumberController,
+                    prefixIcon: Icons.badge_outlined,
+                    validator: (v) => (v == null || v.isEmpty) ? 'Please enter service badge ID' : null,
+                  ),
+                  const SizedBox(height: 18),
+                ] else if (auth.pendingSignupRole == UserRole.police) ...[
+                  CustomTextField(
+                    label: 'POLICE BADGE NUMBER',
+                    hintText: 'e.g. TP-BLR-502',
+                    controller: _badgeNumberController,
+                    prefixIcon: Icons.badge_outlined,
+                    validator: (v) => (v == null || v.isEmpty) ? 'Please enter police badge number' : null,
+                  ),
+                  const SizedBox(height: 18),
+                  CustomTextField(
+                    label: 'TRAFFIC DIVISION / JURISDICTION',
+                    hintText: 'e.g. Central Traffic Division - MG Road',
+                    controller: _jurisdictionController,
+                    prefixIcon: Icons.traffic_outlined,
+                    validator: (v) => (v == null || v.isEmpty) ? 'Please enter traffic division' : null,
+                  ),
+                  const SizedBox(height: 18),
+                ] else if (auth.pendingSignupRole == UserRole.admin) ...[
+                  CustomTextField(
+                    label: 'OFFICIAL AUTHORIZATION / UNIT ID',
+                    hintText: 'e.g. CTRL-ROOM-HQ-01',
+                    controller: _badgeNumberController,
+                    prefixIcon: Icons.admin_panel_settings_outlined,
+                    validator: (v) => (v == null || v.isEmpty) ? 'Please enter authorization ID' : null,
+                  ),
+                  const SizedBox(height: 18),
+                ],
 
                 CustomTextField(
                   label: 'CREATE PASSWORD',

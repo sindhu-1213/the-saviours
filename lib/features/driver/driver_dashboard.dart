@@ -7,7 +7,6 @@ import '../../core/state/auth_state.dart';
 import '../../core/state/incident_state.dart';
 import '../../core/widgets/app_bottom_bar.dart';
 import '../../core/widgets/custom_button.dart';
-import '../../core/widgets/role_switcher_sheet.dart';
 import '../../core/widgets/spotify_hero_card.dart';
 import '../../core/widgets/status_pill.dart';
 import '../../mock_data/mock_emergency_database.dart';
@@ -28,6 +27,9 @@ class _DriverDashboardState extends State<DriverDashboard> {
     final incidentState = context.watch<IncidentState>();
     final active = incidentState.activeIncident;
     final isOnDuty = incidentState.isDriverOnDuty;
+    final recentTrips = incidentState.trips.isNotEmpty
+        ? incidentState.trips
+        : MockEmergencyDatabase.samplePastTrips;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -51,11 +53,6 @@ class _DriverDashboardState extends State<DriverDashboard> {
             onPressed: () {
               Navigator.pushNamed(context, AppRoutes.driverNotifications);
             },
-          ),
-          IconButton(
-            icon: const Icon(Icons.swap_horiz_rounded, color: AppColors.primaryGreen),
-            tooltip: 'Switch Role',
-            onPressed: () => RoleSwitcherSheet.show(context),
           ),
           const SizedBox(width: 6),
         ],
@@ -250,44 +247,61 @@ class _DriverDashboardState extends State<DriverDashboard> {
             ),
             const SizedBox(height: 12),
 
-            ...MockEmergencyDatabase.samplePastTrips.take(2).map((trip) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.divider),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceElevated,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(Icons.local_hospital_rounded, color: AppColors.primaryGreen, size: 20),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(trip.hospitalName, style: AppTypography.titleMedium.copyWith(fontSize: 14)),
-                            const SizedBox(height: 2),
-                            Text('${trip.location} • ${trip.totalMinutes} mins', style: AppTypography.caption),
-                          ],
-                        ),
-                      ),
-                      StatusPill.verified(label: trip.status.split(' ').first),
-                    ],
+            if (recentTrips.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.divider),
+                ),
+                child: Center(
+                  child: Text(
+                    'No trips recorded yet. Completed ambulance transports will appear here.',
+                    style: AppTypography.caption,
+                    textAlign: TextAlign.center,
                   ),
                 ),
-              );
-            }),
+              )
+            else
+              ...recentTrips.take(2).map((trip) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.divider),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceElevated,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(Icons.local_hospital_rounded, color: AppColors.primaryGreen, size: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(trip.hospitalName, style: AppTypography.titleMedium.copyWith(fontSize: 14)),
+                              const SizedBox(height: 2),
+                              Text('${trip.location} • ${trip.totalMinutes} mins', style: AppTypography.caption),
+                            ],
+                          ),
+                        ),
+                        StatusPill.verified(label: trip.status.split(' ').first),
+                      ],
+                    ),
+                  ),
+                );
+              }),
 
             const SizedBox(height: 30),
           ],

@@ -40,22 +40,39 @@ class _KycUploadScreenState extends State<KycUploadScreen> {
   }
 
   Future<void> _submitKyc() async {
+    final docNum = _docNumberController.text.trim();
+    if (docNum.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your document / ID number'),
+          backgroundColor: AppColors.emergencyRed,
+        ),
+      );
+      return;
+    }
+
     final auth = context.read<AuthState>();
-    final docType = _getDocTypeTitle(auth.pendingSignupRole);
-    final docNum = _docNumberController.text.trim().isNotEmpty
-        ? _docNumberController.text.trim()
-        : 'KA-04-2026-98712';
+    final role = auth.currentUser?.role ?? auth.pendingSignupRole;
+    final docType = _getDocTypeTitle(role);
 
     setState(() => _isSubmitting = true);
     await auth.submitKycDocuments(docType: docType, docNumber: docNum);
     if (!mounted) return;
     setState(() => _isSubmitting = false);
 
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      AppRoutes.verificationPending,
-      (r) => false,
-    );
+    if (role == UserRole.civilian) {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.civilianHome,
+        (r) => false,
+      );
+    } else {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.verificationPending,
+        (r) => false,
+      );
+    }
   }
 
   String _getDocTypeTitle(UserRole role) {
@@ -74,7 +91,7 @@ class _KycUploadScreenState extends State<KycUploadScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthState>();
-    final role = auth.pendingSignupRole;
+    final role = auth.currentUser?.role ?? auth.pendingSignupRole;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -126,10 +143,14 @@ class _KycUploadScreenState extends State<KycUploadScreen> {
               CustomTextField(
                 label: role == UserRole.civilian
                     ? '12-DIGIT AADHAAR NUMBER'
-                    : (role == UserRole.driver ? 'COMMERCIAL DL NUMBER' : 'POLICE BADGE / SERVICE ID'),
+                    : (role == UserRole.driver
+                        ? 'COMMERCIAL DL NUMBER'
+                        : (role == UserRole.police ? 'POLICE BADGE / SERVICE ID' : 'GOVERNMENT AUTHORIZATION ID')),
                 hintText: role == UserRole.civilian
                     ? 'e.g. 9812 3456 7890'
-                    : (role == UserRole.driver ? 'e.g. KA-04-2019-00912' : 'e.g. BTP-SI-2024-88'),
+                    : (role == UserRole.driver
+                        ? 'e.g. KA-04-2019-00912'
+                        : (role == UserRole.police ? 'e.g. BTP-SI-2024-88' : 'e.g. GOVT-AUTH-2024-HQ')),
                 controller: _docNumberController,
                 prefixIcon: Icons.badge_outlined,
               ),
@@ -153,6 +174,10 @@ class _KycUploadScreenState extends State<KycUploadScreen> {
                 _buildUploadTile('State Police Identity Card'),
                 const SizedBox(height: 12),
                 _buildUploadTile('Traffic Junction Station Order / Duty Deputation'),
+              ] else if (role == UserRole.admin) ...[
+                _buildUploadTile('Central Government ID / Official Order'),
+                const SizedBox(height: 12),
+                _buildUploadTile('Control Room Authorization Certificate'),
               ],
 
               const SizedBox(height: 36),

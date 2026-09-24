@@ -29,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final auth = context.read<AuthState>();
 
     if (!auth.isAuthenticated) {
-      Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
       return;
     }
 
